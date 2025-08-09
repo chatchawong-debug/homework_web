@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const popupBalanceMessageDiv = document.getElementById('popup-balance-message');
     const popupAdviceMessageDiv = document.getElementById('popup-advice-message');
     const expenseChartPopupCanvas = document.getElementById('expense-chart-popup');
-    let expenseChart = null; // สำหรับเก็บ instance ของ Chart.js (ใช้ร่วมกัน)
+    let expenseChart = null;
 
     // ฟังก์ชันสำหรับเพิ่มช่องกรอกรายรับ
     function addIncomeInput() {
@@ -50,15 +50,12 @@ document.addEventListener('DOMContentLoaded', () => {
         div.querySelector('.remove-btn').addEventListener('click', () => div.remove());
     }
 
-    // เพิ่มช่องกรอกเริ่มต้นเมื่อโหลดหน้า
     addIncomeInput();
     addExpenseInput();
 
-    // Event Listeners สำหรับปุ่มเพิ่ม
     addIncomeBtn.addEventListener('click', addIncomeInput);
     addExpenseBtn.addEventListener('click', addExpenseInput);
 
-    // Event Listener สำหรับปุ่มคำนวณ
     calculateBtn.addEventListener('click', () => {
         let totalIncome = 0;
         document.querySelectorAll('.income-amount').forEach(input => {
@@ -66,16 +63,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         let totalExpenses = 0;
-        const expenseCategories = {}; // สำหรับเก็บยอดรวมของแต่ละหมวดหมู่
-
+        const expenseCategories = {};
         document.querySelectorAll('#expense-items .input-group').forEach(group => {
             const amountInput = group.querySelector('.expense-amount');
             const categorySelect = group.querySelector('.expense-category');
             const amount = parseFloat(amountInput.value) || 0;
             const category = categorySelect.value;
-
             totalExpenses += amount;
-
             if (expenseCategories[category]) {
                 expenseCategories[category] += amount;
             } else {
@@ -85,18 +79,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const balance = totalIncome - totalExpenses;
 
-        // === อัปเดตข้อมูลใน Pop-up ===
-        popupTotalIncomeSpan.textContent = totalIncome.toFixed(2);
-        popupTotalExpensesSpan.textContent = totalExpenses.toFixed(2);
-        popupBalanceAmountSpan.textContent = balance.toFixed(2);
+        // === อัปเดตข้อมูลใน Pop-up พร้อมจัดรูปแบบตัวเลข ===
+        popupTotalIncomeSpan.textContent = totalIncome.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        popupTotalExpensesSpan.textContent = totalExpenses.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        popupBalanceAmountSpan.textContent = balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
         popupBalanceMessageDiv.className = 'message';
         if (balance >= 0) {
             popupBalanceMessageDiv.classList.add('positive');
-            popupBalanceMessageDiv.innerHTML = `คุณมีเงินเหลือ/เงินออมที่คาดการณ์ **${balance.toFixed(2)}** บาท เยี่ยมมาก!`;
+            popupBalanceMessageDiv.innerHTML = `คุณมีเงินเหลือ/เงินออมที่คาดการณ์ **${balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}** บาท เยี่ยมมาก!`;
         } else {
             popupBalanceMessageDiv.classList.add('negative');
-            popupBalanceMessageDiv.innerHTML = `คุณมีรายจ่ายเกินรายรับที่คาดการณ์ **${Math.abs(balance).toFixed(2)}** บาท กรุณาทบทวนการใช้จ่าย!`;
+            popupBalanceMessageDiv.innerHTML = `คุณมีรายจ่ายเกินรายรับที่คาดการณ์ **${Math.abs(balance).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}** บาท กรุณาทบทวนการใช้จ่าย!`;
         }
 
         popupAdviceMessageDiv.className = 'message';
@@ -111,29 +105,23 @@ document.addEventListener('DOMContentLoaded', () => {
             popupAdviceMessageDiv.innerHTML = `การรักษาสมดุลรายรับรายจ่ายเป็นสิ่งสำคัญ ลองตั้งเป้าหมายการออมเพิ่มเติม.`;
         }
 
-        // อัปเดตกราฟใน Pop-up
         updateExpenseChart(expenseCategories, expenseChartPopupCanvas);
-
-        // แสดง Pop-up
         popupOverlay.classList.add('active');
     });
 
-    // Event Listener สำหรับปิด Pop-up
     closePopupBtn.addEventListener('click', () => {
         popupOverlay.classList.remove('active');
     });
 
-    // ปิด Pop-up เมื่อคลิกนอกพื้นที่ Pop-up content (บน overlay)
     popupOverlay.addEventListener('click', (event) => {
         if (event.target === popupOverlay) {
             popupOverlay.classList.remove('active');
         }
     });
 
-    // ฟังก์ชันสำหรับอัปเดตกราฟ Chart.js (ปรับให้รับ canvas element)
     function updateExpenseChart(data, canvasElement) {
         if (expenseChart) {
-            expenseChart.destroy(); // ลบกราฟเก่าถ้ามีอยู่
+            expenseChart.destroy();
         }
 
         const labels = Object.keys(data);
