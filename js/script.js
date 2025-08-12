@@ -61,8 +61,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     ];
 
-    // ฟังก์ชันสำหรับสร้างรายการหมวดหมู่และไฟล์ (เหมือนเดิม)
-    function renderProductCategories(productCategoriesData) { // เปลี่ยนชื่อ parameter ให้ชัดเจนขึ้น
+    // ฟังก์ชันสำหรับสร้างรายการหมวดหมู่และไฟล์
+    function renderProductCategories(productCategoriesData) { 
         workItemsContainer.innerHTML = '';
         if (!productCategoriesData || productCategoriesData.length === 0) {
             workItemsContainer.innerHTML = '<div class="message">Notfound :( </div>';
